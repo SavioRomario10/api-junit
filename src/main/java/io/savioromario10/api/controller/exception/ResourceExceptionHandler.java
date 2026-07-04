@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import io.savioromario10.api.service.exception.DataIntegratyViolationException;
 import io.savioromario10.api.service.exception.ObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -23,5 +24,17 @@ public class ResourceExceptionHandler {
     );
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+  }
+
+  @ExceptionHandler(DataIntegratyViolationException.class)
+  public ResponseEntity<StandarError> dataIntegratyViolation(DataIntegratyViolationException e, HttpServletRequest request) {
+    StandarError error = new StandarError(
+      LocalDateTime.now(),
+      HttpStatus.BAD_REQUEST.value(),
+      e.getMessage(),
+      request.getRequestURI()
+    );
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }
 }
