@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +30,10 @@ public class UserController {
   @Autowired
   private UserService userService;
 
-  @GetMapping("/{id}")
-  public ResponseEntity<UserDto> findById(@PathVariable Integer id) {
+  private final String ID = "/{id}";
+
+  @GetMapping(ID)
+  public ResponseEntity<UserDto> findById(@PathVariable("id") Integer id) {
     return ResponseEntity.ok().body(
         mapper.map(userService.findById(id), UserDto.class)
     );
@@ -56,5 +59,20 @@ public class UserController {
         .buildAndExpand(newUser.getId()).toUri();
     
     return ResponseEntity.created(uri).body(mapper.map(newUser, UserDto.class));
+  }
+
+  @PostMapping(ID)
+  public ResponseEntity<UserDto> update(
+    @PathVariable("id") Integer id, @RequestBody UserDto user)
+  {
+    user.setId(id);
+    User updatedUser = userService.update(user);
+    return ResponseEntity.ok().body(mapper.map(updatedUser, UserDto.class));
+  }
+
+  @DeleteMapping(ID)
+  public ResponseEntity<Void> delete(@PathVariable("id") Integer id){
+    userService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }  
